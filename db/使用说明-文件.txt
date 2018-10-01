@@ -1,0 +1,9 @@
+﻿把多行文本变成一行
+wenben_yh_chushi.txt：用来写入要变成一行的文本
+wenben_yh_jieguo.txt：用来保存变成一行后的文本
+把一行文本顺序反转
+wenben_sx_chushi.txt：用来写入
+wenben_sx_jieguo.txt：用来保存
+寻序列是否有靶标
+gene.txt：用来写入基因序列
+babiao.txt：用来写入靶标序列

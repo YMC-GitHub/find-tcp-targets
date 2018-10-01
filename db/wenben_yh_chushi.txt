@@ -1,0 +1,4 @@
+﻿>序列1
+aaaaaaaaaattttttttttttttcccccc 
+cccccccccccccggggaaaaaaaaaattt 
+ttttttcccggggaaaaaaaaaatttttttttttttcccccccccccccccccccgggg 

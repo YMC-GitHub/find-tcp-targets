@@ -1,0 +1,22 @@
+﻿@charset "utf-8";
+body{background:#D2D460;text-align:center;}
+#d_bd_bd{
+	width:800px;margin:0 auto;text-align:center;background-color: #99F;
+}
+#bd_denglu .biaoti {
+	background-color: #C9F;
+	text-align: center;
+}
+.shuru{
+	width:360;
+	margin-left:5px;
+	margin-right:5px;
+}
+#bd_denglu .bd_anniu {
+	font-size: 14px;
+	color: #000;
+	margin-left: 20px;	
+ }
+.result_xx{
+	text-align:left;	
+}

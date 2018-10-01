@@ -1,0 +1,571 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title></title>
+<SCRIPT LANGUAGE="JavaScript">  
+<!--  
+String.prototype.Trim = function()  
+{  
+return this.replace(/(^\s*)|(\s*$)/g, "");  
+}  
+String.prototype.LTrim = function()  
+{  
+return this.replace(/(^\s*)/g, "");  
+}  
+String.prototype.RTrim = function()  
+{  
+return this.replace(/(\s*$)/g, "");  
+}  
+function CheckForm(frm)
+{
+    if(frm.DNAseq.value=="")
+    {
+        alert("DNA序列不能为空！");
+        frm.DNAseq.focus();
+        return false;
+     }
+	 if(frm.babiaoeq.value=="")
+    {
+        alert("靶标序列不能为空！");
+        frm.babiaoseq.focus();
+        return false;
+     }
+}
+//调整图片大小函数
+function tiaozheng_tupian(maxWidth,maxHeight,objImg){
+var img = new Image();
+img.src = objImg.src;
+var hRatio;
+var wRatio;
+var Ratio_x = 1;
+var Ratio_y = 1;
+var w = img.width;
+var h = img.height;
+
+wRatio = maxWidth / w;
+hRatio = maxHeight / h;
+//显示原图
+if (maxWidth ==0 && maxHeight==0){
+Ratio_x = 1;
+Ratio_y = 1;
+//缩小放大
+}else if (maxWidth==0){//
+Ratio_x = 1;
+Ratio_y = hRatio;
+}else if (maxHeight==0){
+Ratio_x = wRatio;
+Ratio_y = 1;
+}else {
+Ratio_x = wRatio;
+Ratio_y = hRatio;
+}
+w = w * Ratio_x;
+h = h * Ratio_y;
+objImg.height = h;
+objImg.width  = w;
+}
+//-->  
+</SCRIPT> 
+
+
+<script language="javascript">
+function czbb(){
+//检查表单内容
+	if (biaodan_jc("input_zhuzhi_zhi","N","表单内容不能为空！")=="") return false;
+	if (biaodan_jc("input_zhuzhi_zhi2","N","表单内容不能为空！")=="") return false;
+//获取表单内容
+	//创建数组,用于存放表单内容
+	var bd_nr_dna = new Array();
+	var bd_nr_bb = new Array();
+	//调用函数huoqu_bd_nr()，获取表单基因偶数行内容，存放于数组bd_nr_dna中
+	huoqu_bd_nr("input_zhuzhi_zhi",bd_nr_dna,0,"<br>");
+	//调用函数huoqu_bd_nr()，获取表单靶标偶数行内容，存放于数组bd_nr_dna中
+	huoqu_bd_nr("input_zhuzhi_zhi2",bd_nr_bb,0,"<br>");
+//查找靶标基因
+	//创建数组，用于存储查找结果
+	var shuzu_jg = new Array();
+	var shuzu_jg_cz_cs = new Array();
+	var shuzu_jg_cz_wz = new Array();
+	var shuzu_jg_cz_xl = new Array();
+	for (var i=0 ; i<bd_nr_dna.length;i++){
+		//数组：shuzu_jg[i][j]，存储是否存在
+		  shuzu_jg[i] = new Array();
+		//数组：shuzu_jg_cz_cs[i][j]，存储存在次数
+		  shuzu_jg_cz_cs[i] = new Array();
+		//数组：shuzu_jg_cz_wz[i]存储存在位置
+		shuzu_jg_cz_wz[i]="";
+		//数组：shuzu_jg_cz_xl[i]存储存在序列
+		shuzu_jg_cz_xl[i]="";
+		for (var j=0 ; j<bd_nr_bb.length;j++){
+			shuzu_jg[i][j]=0;
+			shuzu_jg_cz_cs[i][j]=0;
+		} 
+	}
+	//字符数组的内容变为大写
+	shuzu_zfdx(bd_nr_dna,0,"<br>");
+	shuzu_zfdx(bd_nr_bb,0,"<br>");
+	//进行查找，查找基因中是否存在靶标序列，存放于数组shuzu_jg中
+	chazhao_jx(bd_nr_dna,bd_nr_bb,shuzu_jg,shuzu_jg_cz_cs,shuzu_jg_cz_wz,shuzu_jg_cz_xl," ","#czbb_jg_xq");
+	alert(5);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//函数：biaodan_jc(id,yn_ts,ts_nr)
+//功能：检测id为id的元素内容
+//说明：参数1：元素Id；参数2：是否提示；参数3：提示内容
+function biaodan_jc(id,yn_ts,ts_nr){
+    var bd_nr = document.getElementById(id).value;
+    if(bd_nr=="")
+    {
+        if (yn_ts =="Y") alert(ts_nr);document.getElementById(id).focus();return "";
+        //return false; 
+     }
+}
+//调用示例1：biaodan_jc("input_zhuzhi_zhi","Y","表单内容不能为空！");
+//调用示例2：biaodan_jc("input_zhuzhi_zhi","N","表单内容不能为空！");
+
+//函数：huoqu_bd_nr(id,shuzu_1,canshu_jieguo,pinjie_jg)
+//功能：获取表单某一id为id的输入框内容中的偶数行内容
+//说明：参数1：表单input的id,参数2：存放表单奇数行内容的数组；参数3：设置是否返回值，为1则返回;参数4:数组拼接间隔内容
+function huoqu_bd_nr(id,shuzu_1,canshu_jieguo,pinjie_jg){
+	//获取内容
+	 var bd_nr = document.getElementById(id).value;
+	//生成数组，以换行符
+	 var bd_nr_sz = bd_nr.Trim().split('\n');	
+	//获取内容奇数项
+	var jieguo="";
+	for (var i=0;i<bd_nr_sz.length/2; i++){
+		shuzu_1[i] = bd_nr_sz[i*2+1] ;
+		jieguo = jieguo + shuzu_1[i] + pinjie_jg ;
+	}
+	if (canshu_jieguo==1){
+	    return jieguo;
+	}else if(canshu_jieguo==0){
+		return;
+	}else if(canshu_jieguo.charAt(0)=="#"){
+		document.getElementById(canshu_jieguo.substring(1,canshu_jieguo.length)).innerHTML =document.getElementById(canshu_jieguo.substring(1,canshu_jieguo.length)).innerHTML + jieguo;
+	}
+}
+//调用示例1：huoqu_bd_nr("input_zhuzhi_zhi",bd_nr_dna,0,"<br>");
+//调用示例2：huoqu_bd_nr("input_zhuzhi_zhi",bd_nr_dna,1,"<br>");
+//调用示例3：huoqu_bd_nr("input_zhuzhi_zhi",bd_nr_dna,"#czbb_jg_xq","<br>");
+
+//函数：shuzu_zfdx(bd_nr_dna,jg_fh_lx,pinjie_jg)
+//功能：将1维字符串数组中的每一项内容变为大写
+//说明：参数1为1维字符串数组名称；参数2为结果返回类型；参数3为返回时相邻字符之间的内容
+function shuzu_zfdx(bd_nr_dna,jg_fh_lx,pinjie_jg){
+	var jieguo="";
+	for (var i=0 ; i<bd_nr_dna.length;i++){
+			bd_nr_dna[i] = bd_nr_dna[i].toUpperCase();
+			jieguo =jieguo + bd_nr_dna[i]  + pinjie_jg;
+	}	
+	if (jg_fh_lx==1){
+		return jieguo;
+	}else if (jg_fh_lx==0){
+		return;
+	}else if (jg_fh_lx.charAt(0)=="#"){
+		document.getElementById(jg_fh_lx.substring(1,jg_fh_lx.length)).innerHTML =document.getElementById(jg_fh_lx.substring(1,jg_fh_lx.length)).innerHTML + jieguo;
+	}
+}
+//调用示例1：shuzu_zfdx(bd_nr_dna,"0"," ")
+//调用示例2：shuzu_zfdx(bd_nr_dna,"1"," ")
+//调用示例3：shuzu_zfdx(bd_nr_dna,"#czbb_jg_xq"," ")
+
+
+//函数：chazhao_jx(bd_nr_dna,bd_nr_bb,shuzu_jg,shuzu_jg_cz_cs,shuzu_jg_cz_wz,shuzu_jg_cz_xl,wzxl_jg_nr,jg_fh_lx)
+//功能：查找数组2中的每一项内容在数组1中的每一项内容中是否存在
+/*
+说明：
+参数1：每一项存储dna的数组名字；参数2：每一项存储bb的数组名字；参数3：存储每一dna中是否存在每一bb的二维数组名字；
+参数4：存储每一bb在每一dna中存在的位置的二维数组名字；参数5：存储每一bb在每一dna中存在的序列的二维数组名字；
+参数6：参数4和参数5数组第二维中，每个bb存在结果之间的相邻间隔内容
+*/
+function chazhao_jx(bd_nr_dna,bd_nr_bb,shuzu_jg,shuzu_jg_cz_cs,shuzu_jg_cz_wz,shuzu_jg_cz_xl,wzxl_jg_nr,jg_fh_lx){
+		var s=0;
+		var fh_YN_cz="";//返回是否存在
+		var fh_cz_cs="";//返回存在次数
+		var fh_cz_wz="";//返回存在位置
+		var fh_cz_xl="";//返回存在序列
+		for (var i=0 ; i<bd_nr_dna.length;j++){
+			for (var j=0 ; j<bd_nr_bb.length;j++){
+				if( bd_nr_dna[i].indexOf(bd_nr_bb[j])>-1){//判断存储，是否存在
+					shuzu_jg[i][j]=1;
+					for (var n =0; n<bd_nr_dna[i].length;n++) {//判断存储第i个基因中的第j个靶标序列，存在次数/存在位置/存在序列
+							if (bd_nr_dna[i].substring(n,n+bd_nr_bb[j].length) ==bd_nr_bb[j]){
+							//存储存在次数
+							shuzu_jg_cz_cs[i][j]=shuzu_jg_cz_cs[i][j] +1;
+							//存储存在位置
+							shuzu_jg_cz_wz[i]=shuzu_jg_cz_wz[i]+ (bd_nr_dna[i].length-n-1) + wzxl_jg_nr ;
+							//存储存在序列
+							shuzu_jg_cz_xl[i]=shuzu_jg_cz_xl[i] + bd_nr_bb[j] + wzxl_jg_nr;
+							}
+					}
+					//存储存在位置
+					shuzu_jg_cz_wz[i]=shuzu_jg_cz_wz[i].Trim();
+					//存储存在序列
+					shuzu_jg_cz_xl[i]=shuzu_jg_cz_xl[i].Trim();
+				}else{
+					shuzu_jg[i][j]=0;
+				}
+				fh_YN_cz =fh_YN_cz +  shuzu_jg[i][j] +  wzxl_jg_nr;
+				fh_cz_cs =fh_cz_cs +  shuzu_jg_cz_cs[i][j]  +  wzxl_jg_nr;
+				fh_cz_wz =fh_cz_wz +  shuzu_jg_cz_wz[i]  +  wzxl_jg_nr;
+				fh_cz_xl =fh_cz_xl +  shuzu_jg_cz_xl[i]  +  wzxl_jg_nr;
+			}
+			fh_YN_cz =fh_YN_cz +  "<br>";
+			fh_cz_cs =fh_cz_cs +  "<br>";
+			fh_cz_wz =fh_cz_wz +  "<br>";
+			fh_cz_xl =fh_cz_xl +  "<br>";
+				alert(fh_cz_wz);
+
+		} 
+	if (jg_fh_lx==1){
+		return fh_YN_cz + "<br>" + fh_cz_cs +  "<br>" + fh_cz_wz +  "<br>" + fh_cz_xl +  "<br>";
+	}else if (jg_fh_lx==0){
+		return;
+	}else if (jg_fh_lx.charAt(0)=="#"){
+		document.getElementById(jg_fh_lx.substring(1,jg_fh_lx.length)).innerHTML =document.getElementById(jg_fh_lx.substring(1,jg_fh_lx.length)).innerHTML + fh_YN_cz + "<br>" + fh_cz_cs +  "<br>" + fh_cz_wz +  "<br>" + fh_cz_xl +  "<br>";
+	}
+}
+//调用示例1：chazhao_jx(bd_nr_dna,bd_nr_bb,shuzu_jg,shuzu_jg_cz_cs,shuzu_jg_cz_wz,shuzu_jg_cz_xl," ",0)
+//调用示例2：chazhao_jx(bd_nr_dna,bd_nr_bb,shuzu_jg,shuzu_jg_cz_cs,shuzu_jg_cz_wz,shuzu_jg_cz_xl," ",1)
+//调用示例3：chazhao_jx(bd_nr_dna,bd_nr_bb,shuzu_jg,shuzu_jg_cz_cs,shuzu_jg_cz_wz,shuzu_jg_cz_xl," ","#czbb_jg_xq")
+
+
+
+//函数：shuzu_bl(shuzu_bl_jg_i_wz_sz,weishu,canshu_jieguo,pinjie_jg)
+//功能：数组遍历
+//说明：参数1为数组名；参数2为数组维数,参数3结果返回类型选择，参数4为数组拼接间隔内容
+function shuzu_bl(shuzu_bl_jg_i_wz_sz,weishu,canshu_jieguo,pinjie_jg){
+	if(weishu==1){
+					var jieguo ="";
+					var x;
+					for (x =0; x< shuzu_bl_jg_i_wz_sz.length; x++)
+  					{
+  						jieguo=jieguo +  shuzu_bl_jg_i_wz_sz[x] + pinjie_jg;
+  					}	
+	}else if (weishu==2){
+					var jieguo ="";
+					var x;
+					var y;
+					for (x =0; x< shuzu_bl_jg_i_wz_sz.length; x++)
+  					{
+						jieguo=jieguo + x + pinjie_jg;
+						for (y =0; y< shuzu_bl_jg_i_wz_sz[x].length; y++)
+  						{
+  							jieguo=jieguo + shuzu_bl_jg_i_wz_sz[x][y] + pinjie_jg;
+  						}
+						jieguo=jieguo + "<br>";
+  					}	
+	}
+	if (canshu_jieguo==1){
+	    return jieguo;
+	}else if(canshu_jieguo==0){
+		return;
+	}else if(canshu_jieguo.charAt(0)=="#"){
+		document.getElementById(canshu_jieguo.substring(1,canshu_jieguo.length)).innerHTML =document.getElementById(canshu_jieguo.substring(1,canshu_jieguo.length)).innerHTML + jieguo;
+	}
+}
+//调用示例1：shuzu_bl(shuzu_bl_jg_i_wz_sz,1,0," ");
+//调用示例2：shuzu_bl(shuzu_bl_jg_i_wz_sz,2,1," ");
+//调用示例3：shuzu_bl(shuzu_bl_jg_i_wz_sz,1,"#czbb_jg_xq"," ");
+//调用示例4：shuzu_bl(shuzu_bl_jg_i_wz_sz,2,"#czbb_jg_xq"," ");
+
+
+
+
+
+
+
+
+
+
+function shuzu_ceshi(){
+	var shuzu = new Array();
+	alert(shuzu[0]);
+	function tishi(x){
+		alert(5);
+		shuzu[0]="666";
+		shuzu[1]="888";
+		alert(x[1]+x[0]);
+		x[0]="123";
+	}
+	tishi(shuzu);
+	alert(shuzu[0]);
+}
+//调用:shuzu_ceshi();
+
+function shezhi_jgys(){
+	 //设置结果样式
+	//遍历结果（以检查是否正确）
+	//shuzu_bl(shuzu_jg_cz_cs,2,"");
+	//shuzu_bl(shuzu_jg_cz_cs[29],1,"");
+	//shuzu_bl(shuzu_jg_cz_cs,2,"");
+	//shuzu_bl(shuzu_jg_cz_wz,2,"");
+	//shuzu_bl(shuzu_jg_cz_xl,2,"");
+	//shuzu_bl(shuzu_jg_cz_cs,2,"czbb_jg_zj");
+	//shuzu_bl(shuzu_jg_cz_cs[29],1,"czbb_jg_zj");
+	//shuzu_bl(shuzu_jg_cz_cs,2,"czbb_jg_zj");
+	//shuzu_bl(shuzu_jg_cz_wz,2,"czbb_jg_zj");
+	//shuzu_bl(shuzu_jg_cz_xl,2,"czbb_jg_zj");
+	var jg_i_wz_zf ;
+	var jg_i_wz_sz = new Array();
+	var jg_i_xl_zf ;
+	var jg_i_xl_sz = new Array();
+	//生成数组
+	i=0;
+	for (i=0 ; i<dna_xl_nr_sz.length-1;i++){
+		jg_i_wz_sz[i]="";
+		jg_i_xl_sz[i]="";
+		j=0;		
+		for (j=0 ; j<bb_xl_nr_sz.length-1;j++){
+			if (shuzu_jg_cz_wz[i][j]!=""){
+				//字符串生成数组
+				 jg_i_wz_zf = shuzu_jg_cz_wz[i][j];
+				 jg_i_wz_sz[i]= jg_i_wz_zf.split(" ");
+				 jg_i_xl_zf = shuzu_jg_cz_xl[i][j];
+				 jg_i_xl_sz[i] = jg_i_xl_zf.split(" ");
+				 //遍历生成的数组
+				 //shuzu_bl(jg_i_wz_sz[i],1,"czbb_jg_zj");
+				//shuzu_bl(jg_i_xl_sz[i],1,"czbb_jg_zj");
+				 //排序
+				 shuzu_px(jg_i_wz_sz,jg_i_xl_sz);
+				 //遍历排序后的数组
+				 //shuzu_bl(jg_i_wz_sz[i],1,"czbb_jg_zj");
+				 //shuzu_bl(jg_i_xl_sz[i],1,"czbb_jg_zj");
+				 //拼接
+				 alert(i + " " + j + " " + jg_i_wz_sz.length + "" + jg_i_wz_sz +jg_i_xl_sz.length + " " + jg_i_xl_sz[i] );
+				 
+			}else{
+				jg_i_wz_sz[i]="";
+				jg_i_xl_sz[i]="";
+			}
+		}
+	}		
+}
+//数组排序
+function shuzu_px(jg_i_wz_sz,jg_i_xl_sz){
+	if (jg_i_wz_sz.length>=2){
+		for (var jg_i_wz_sz_i=0;jg_i_wz_sz_i< jg_i_wz_sz.length-1; jg_i_wz_sz_i++){
+					for (var jg_i_wz_sz_j=jg_i_wz_sz_i+1;jg_i_wz_sz_j< jg_i_wz_sz.length; jg_i_wz_sz_j++){
+						if (jg_i_wz_sz[jg_i_wz_sz_i] < jg_i_wz_sz[jg_i_wz_sz_j]) {
+							var jiaohuan = jg_i_wz_sz[jg_i_wz_sz_i] ;
+							jg_i_wz_sz[jg_i_wz_sz_i] = jg_i_wz_sz[jg_i_wz_sz_j];
+							jg_i_wz_sz[jg_i_wz_sz_j] = jiaohuan;
+							
+							jiaohuan = jg_i_xl_sz[jg_i_wz_sz_i] ;
+							jg_i_xl_sz[jg_i_wz_sz_i] = jg_i_xl_sz[jg_i_wz_sz_j];
+							jg_i_xl_sz[jg_i_wz_sz_j] = jiaohuan;
+						}
+					}
+		}
+	}
+}
+
+
+
+
+
+//shuzu_ceshi();
+    </script>
+
+</head>
+<body   bgcolor="#CCFFCC" style="text-align:center;">
+<div    style="width:800px;margin:0 auto;text-align:center;">
+<!--个人简历-->
+<div id="jl_zhi_A4" align=center style="border:1px solid #FFF; background-color:#090">
+<div id="jl_zhi_A4_bj" style="background-color:#090">
+	<div id="jl_nr_timu" style=" background-color:#090; text-align:center; padding-bottom:3mm"><font size=5 ><b>查找靶标</b></font></div>
+	<div id="jl_nr_jiange_1" style="background-color:#090"></div>
+	<div id="jl_nr_mokuai_1" style="text-align:center" >
+    	<div id="jl_nr_mokuai_1_zpk" style=" float:right ; overflow:hidden"   >
+              <img id="jl_nr_mokuai_1_zhaopin" src="image/touxiang_moren.jpg" onload="tiaozheng_tupian(35*3.65,55*3.65,this)"  alt="叶绵程照片" title="点击选择图片上传" >
+        </div>
+		<div id="jl_nr_mokuai_1_jbxx" style=" background-color:#095;text-align:center;border:0;">
+
+            <div style="clear:both"></div>
+        </div>	
+    </div>
+	<div id="jl_nr_jiange_2" style="background-color:#090"></div>
+    <div id="jl_nr_mokuai_2" style="background-color:#095; text-align:center" >
+   	      <div style="text-align:left; width:100%; height:15%"><font size=5>基因序列</font></div>
+            <textarea name="input_jianli_13" class="input_touming" id="input_zhuzhi_zhi" style="width:99%;border:0; height:85%; background-color:#0FC;"></textarea>
+	</div>
+    <div id="jl_nr_jiange_3" style="background-color:#090"></div>
+    <div id="jl_nr_mokuai_3" style="background-color:#3f5; text-align:center" >
+     <div style="text-align:left; width:100%; height:15%"><font size=5>靶标序列</font></div>
+	        <textarea name="input_jianli_14" class="input_touming" id="input_zhuzhi_zhi2" style="width:99%;border:0; height:85%; background-color:#0FC;"></textarea>
+	</div>
+    <div id="jl_nr_jiange_4" style="background-color:#090"></div>    
+    <div id="jl_nr_mokuai_4" style="background-color:#5C5; text-align:center" >
+    	     <div style="text-align:left; width:100%; height:15%"><font size=5>结果总结</font></div>
+             <div id="czbb_jg_zj" style="text-align:left; width:100%; height:85%; overflow:auto;"></div>
+
+    </div>
+    <div id="jl_nr_jiange_5" style="background-color:#095"></div>    
+    <div id="jl_nr_mokuai_5" style="background-color:#5C0; text-align:center" >
+			 <div style="text-align:left; width:100%; height:15%"><font size=5>结果详情</font></div>
+             <div  id="czbb_jg_xq" style="text-align:left; width:100%; height:85%; overflow:auto;"></div>
+
+	</div>
+    		<div   id="submit_biaodan_file1" style="width:10mm; height:10mm; border:1mm; border-color:#FC0; border-radius:50% 50% 50% 50%; background-color:#60C;" onClick="czbb()"> </div>
+</div>
+<!--A4纸内容div，设置边距-->
+</div> 
+<!--A4纸div-->
+<!--个人简历结束-->
+
+ </div> 
+<!--简历内容样式-->
+<script >
+
+
+//调用函数设置简历样式
+shezhi_daxiao("mm");
+
+
+//创建一个函数设置简历样式
+function shezhi_daxiao(danwei){
+//声明一个A4纸对象
+var a4zhi = new duixiang_A4zhi();
+//设置A4纸大小
+document.getElementById("jl_zhi_A4").style.width= a4zhi.zhizhang_k + danwei;
+document.getElementById("jl_zhi_A4").style.height= a4zhi.zhizhang_c + danwei;
+//设置内容大小
+document.getElementById("jl_zhi_A4_bj").style.width= a4zhi.neirong_k + danwei;
+document.getElementById("jl_zhi_A4_bj").style.height= a4zhi.neirong_c+ danwei;
+document.getElementById("jl_zhi_A4_bj").style.marginTop=a4zhi.bianju_s + danwei;
+document.getElementById("jl_zhi_A4_bj").style.marginRight=a4zhi.bianju_y + danwei;
+document.getElementById("jl_zhi_A4_bj").style.marginBotttom=a4zhi.bianju_x + danwei;
+document.getElementById("jl_zhi_A4_bj").style.marginLeft=a4zhi.bianju_z + danwei;
+//设置题目大小
+document.getElementById("jl_nr_timu").style.width= a4zhi.nr_timu_k + danwei;
+document.getElementById("jl_nr_timu").style.height= a4zhi.nr_timu_c+ danwei;
+//设置模块间隔jl_nr_jiange
+document.getElementById("jl_nr_jiange_1").style.width= a4zhi.nr_mokuai_jg_k+ danwei;
+document.getElementById("jl_nr_jiange_1").style.height= a4zhi.nr_mokuai_jg_c+ danwei;
+document.getElementById("jl_nr_jiange_2").style.width= a4zhi.nr_mokuai_jg_k+ danwei;
+document.getElementById("jl_nr_jiange_2").style.height= a4zhi.nr_mokuai_jg_c+ danwei;
+document.getElementById("jl_nr_jiange_3").style.width= a4zhi.nr_mokuai_jg_k+ danwei;
+document.getElementById("jl_nr_jiange_3").style.height= a4zhi.nr_mokuai_jg_c+ danwei;
+document.getElementById("jl_nr_jiange_4").style.width= a4zhi.nr_mokuai_jg_k+ danwei;
+document.getElementById("jl_nr_jiange_4").style.height= a4zhi.nr_mokuai_jg_c+ danwei;
+document.getElementById("jl_nr_jiange_5").style.width= a4zhi.nr_mokuai_jg_k+ danwei;
+document.getElementById("jl_nr_jiange_5").style.height= a4zhi.nr_mokuai_jg_c+ danwei;
+//设置模块大小jl_nr_mokuai_1
+document.getElementById("jl_nr_mokuai_1").style.width= a4zhi.nr_mokuai_x + danwei;
+document.getElementById("jl_nr_mokuai_1").style.height= a4zhi.nr_mokuai_y+ danwei;
+document.getElementById("jl_nr_mokuai_2").style.width= a4zhi.nr_mokuai_x + danwei;
+document.getElementById("jl_nr_mokuai_2").style.height= a4zhi.nr_mokuai_y+ danwei;
+document.getElementById("jl_nr_mokuai_3").style.width= a4zhi.nr_mokuai_x + danwei;
+document.getElementById("jl_nr_mokuai_3").style.height= a4zhi.nr_mokuai_y+ danwei;
+document.getElementById("jl_nr_mokuai_4").style.width= a4zhi.nr_mokuai_x + danwei;
+document.getElementById("jl_nr_mokuai_4").style.height= a4zhi.nr_mokuai_y+ danwei;
+document.getElementById("jl_nr_mokuai_5").style.width= a4zhi.nr_mokuai_x+ danwei;
+document.getElementById("jl_nr_mokuai_5").style.height= a4zhi.nr_mokuai_y+ danwei;
+//声明一个2寸照片对象
+var zhaopin = new duixiang_2cunzhaopin ();
+//设置照片大小jl_nr_mokuai_1_zhaopin
+//document.getElementById("jl_nr_mokuai_1_zpk").style.width= a4zhi.nr_mokuai_x + danwei;
+//document.getElementById("jl_nr_mokuai_1_zpk").style.height= a4zhi.nr_mokuai_y+ danwei;
+document.getElementById("jl_nr_mokuai_1_zpk").style.width= zhaopin.kuan + danwei;
+document.getElementById("jl_nr_mokuai_1_zpk").style.height= zhaopin.chang+ danwei;
+//document.getElementById("jl_nr_mokuai_1_zhaopin").style.width= zhaopin.kuan + danwei;
+//document.getElementById("jl_nr_mokuai_1_zhaopin").style.height= zhaopin.chang+ danwei;
+//设置基本信息jl_nr_mokuai_1_jbxx
+var tt=a4zhi.nr_mokuai_x - zhaopin.kuan;
+document.getElementById("jl_nr_mokuai_1_jbxx").style.width=tt+ danwei;
+document.getElementById("jl_nr_mokuai_1_jbxx").style.height=55 + danwei;
+}
+/*创建一个A纸值对象*/
+function duixiang_A4zhi(){
+//创建对象的属性
+this.name = "对象-A4纸对象1" ;
+this.fangfa = "使用构造/原型方式构建的对象" ;
+this.zhizhang_c = 297 ;
+this.zhizhang_k = 210 ;
+this.bianju_s = 297*0.03;
+this.bianju_y = 297*0.03;
+this.bianju_x = 210*0.03;
+this.bianju_z = 210*0.03 ;
+this.bianju_s_k = 0 ;
+this.bianju_y_k = 0 ;
+this.bianju_x_k = 0 ;
+this.bianju_z_k = 0 ;
+this.neirong_c = 297*(1-0.04-0.04-0-0) ;
+this.neirong_k = 210*(1-0.04-0.04-0-0) ;
+this.nr_timu_c = 297*0.02 ;
+this.nr_timu_k = 210*0.90 ;
+this.nr_mokuai_jg_c = 0;
+this.nr_mokuai_jg_k= 0;
+this.nr_mokuai_x = 210*0.90 ;
+this.nr_mokuai_y = 297*0.18 ;
+//创建对象的方法
+if(typeof duixiang_A4zhi._initialized == "undefined")
+{
+	duixiang_A4zhi.prototype.showName = function(){
+	alert(this.name);
+	};
+	duixiang_A4zhi._initialized = true;
+}
+}
+//创建一个2寸照片对象
+function duixiang_2cunzhaopin(){
+this.name = "对象-2寸照片对象1" ;
+this.chang = 55 ;
+this.kuan = 35 ;
+if(typeof duixiang_2cunzhaopin._initialized == "undefined")
+{
+	duixiang_2cunzhaopin.prototype.showName = function(){
+	alert(this.name);
+	};
+	duixiang_2cunzhaopin._initialized = true;
+}
+}
+
+function duixiang_pingmu(){ 
+this.name = "对象-窗口屏幕对象1" ;
+this.fangshi="通过构造/原型方式构建" ;
+this.FenbianlvGaodu = window.screen.height ;
+this.FenbianlvKuandu = window.screen.width ;
+this.GongzuoquGaodu = window.screen.availHeight;
+this.GongzuoquKuandu = window.screen.availWidth;
+	if(typeof duixiang_pingmu._initialized == "undefined")
+	{
+		duixiang_pingmu.prototype.showName = function(){
+		alert(this.name);
+		};
+	duixiang_pingmu._initialized = true;
+	}
+}
+
+</script>
+
+
+
+
+
+
+</div>
+</body>
+</html>
